@@ -26,7 +26,7 @@ const productSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    quantity: {
+    stockQuantity: {
         type: Number,
         min: 0,
     },

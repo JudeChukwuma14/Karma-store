@@ -1,5 +1,7 @@
 const Product = require("../model/productModel")
-
+const User = require("../model/authModel")
+const mongoose = require("mongoose")
+const Cart = require("../model/cartModel")
 // Get method for all Of my Pages
 const blogDetails = (req, res) => {
     res.render("blog-details")
@@ -11,6 +13,69 @@ const cartPage = (req, res) => {
     res.render("cart")
 }
 
+const addCart = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.redirect("/login")
+        }
+        const userId = req.user.id
+        const productId = req.params.id
+        const { quantity = 1, size, color } = req.body
+        console.log(req.body)
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            return res.render("single-product", { error: "Product not found" })
+        }
+        if (!size || !color) {
+            return res.render("single-product", { error: "Please select size and color" })
+        }
+        const qty = parseInt(quantity)
+        console.log(qty)
+
+        if (isNaN(qty) || qty < 1) {
+            return res.render('single-product', { error: 'Invalid quantity' });
+        }
+
+        const product = await Product.findById(productId)
+        console.log(product)
+
+        if (!product) {
+            return res.render('single-product', { error: 'Product not found' });
+        }
+        if (product.stockQuantity < qty) {
+            return res.render('single-product', { error: 'Insufficient stock' });
+        }
+        if (!product.size || !product.color) {
+            return res.render("single-product", { error: "Please select size and color" })
+        }
+
+        const currentUser = await User.findById(userId)
+        console.log(currentUser)
+        if (!currentUser) {
+            return res.redirect("/login")
+        }
+
+        const existingCartItem = await Cart.findOne({ userId, productId, size, color })
+        if (existingCartItem) {
+            existingCartItem.quantity += qty
+            if (existingCartItem.quantity > product.stockQuantity) {
+                return res.render('single-product', { error: 'Total quantity exceeds stock' });
+            }
+            await existingCartItem.save()
+        } else {
+           const cartMe= await Cart.create({
+                userId,
+                productId,
+                quantity: qty,
+                size, color
+            })
+            console.log(cartMe)
+            res.redirect("/cart?success=Added to cart successfully")
+        }
+    } catch (error) {
+        console.error(error.message);
+        res.render("single-product", { error: "Something went wrong", errorMessage: error.message })
+    }
+}
 const categoryPage = async (req, res) => {
     try {
         const productPerPage = 6;
@@ -120,6 +185,6 @@ const trackingPage = (req, res) => {
 
 
 module.exports = {
-    blogDetails, blogPage, cartPage, categoryPage, checkoutPage, confirmationPage, contactPage, elementPage, indexOne, indexTwo, loginPage, registerPage, signleBlog, singleProduct, trackingPage
+    blogDetails, blogPage, cartPage, categoryPage, checkoutPage, confirmationPage, contactPage, elementPage, indexOne, indexTwo, loginPage, registerPage, signleBlog, singleProduct, trackingPage, addCart
 }
 

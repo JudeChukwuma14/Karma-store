@@ -1,6 +1,7 @@
 
 const express = require('express')
-const { blogDetails, blogPage, cartPage, categoryPage, confirmationPage, contactPage, elementPage, indexOne, loginPage, indexTwo, registerPage, signleBlog, singleProduct, trackingPage, checkoutPage } = require('../controller/userController')
+const { blogDetails, blogPage, cartPage, categoryPage, confirmationPage, contactPage, elementPage, indexOne, loginPage, indexTwo, registerPage, signleBlog, singleProduct, trackingPage, checkoutPage, addCart } = require('../controller/userController')
+const verifyToken = require('../middleware/verifyToken')
 const router = express.Router()
 
 router.get("/blog-details", blogDetails)
@@ -18,6 +19,7 @@ router.get("/register", registerPage)
 router.get("/single-blog", signleBlog)
 router.get("/single-product/:id", singleProduct)
 router.get("/tracking", trackingPage)
+router.get("/addcart/:id",verifyToken, addCart)
 
 
 

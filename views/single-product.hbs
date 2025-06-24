@@ -337,8 +337,8 @@
                             <div class="meta-item">
                                 <span class="meta-label">Availability:</span>
                                 <span class="meta-value availability">
-                                    {{#if product.quantity}}
-                                    In Stock ({{product.quantity}} units)
+                                    {{#if product.stockQuantity}}
+                                    In Stock ({{product.stockQuantity}} units)
                                     {{else}}
                                     Out of Stock
                                     {{/if}}
@@ -375,12 +375,14 @@
                         <div class="quantity-selector">
                             <h5>Quantity:</h5>
                             <button class="quantity-btn minus">-</button>
-                            <input type="number" class="quantity-input" value="1" min="1" max="{{product.quantity}}" readonly>
+                            <input type="number" class="quantity-input" value="1" min="1" max="{{product.stockQuantity}}" readonly>
                             <button class="quantity-btn plus">+</button>
                         </div>
 
                         <div class="action-buttons">
-                            <button class="btn-add-to-cart">Add to Cart</button>
+                            <a href="/addcart/{{product._id}}">
+                                <button class="btn-add-to-cart">Add to Cart</button>
+                            </a>
                             <button class="btn-buy-now">Buy Now</button>
                         </div>
                     </div>
