@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.get("/blog-details", blogDetails)
 router.get("/blog", blogPage)
-router.get("/cart", cartPage)
+router.get("/cart", verifyToken, cartPage)
 router.get("/category", categoryPage)
 router.get("/checkout", checkoutPage)
 router.get("/confirmation", confirmationPage)
@@ -19,7 +19,7 @@ router.get("/register", registerPage)
 router.get("/single-blog", signleBlog)
 router.get("/single-product/:id", singleProduct)
 router.get("/tracking", trackingPage)
-router.get("/addcart/:id",verifyToken, addCart)
+router.post("/addcart/:id", verifyToken, addCart)
 
 
 

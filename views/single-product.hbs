@@ -354,7 +354,7 @@
                             </div>
                         </div>
 
-                   {{#if product.size.length}}
+                        {{#if product.size.length}}
                         <h5>Select Size:</h5>
                         <div class="size-options">
                             {{#each product.size}}
@@ -367,7 +367,8 @@
                         <h5>Select Color:</h5>
                         <div class="color-options">
                             {{#each product.color}}
-                            <div class="color-option {{#if @first}}selected{{/if}}" style="background-color: {{this}};"></div>
+                            <div class="color-option {{#if @first}}selected{{/if}}" style="background-color: {{this}}" data-color="{{this}}">
+                            </div>
                             {{/each}}
                         </div>
                         {{/if}}
@@ -375,14 +376,17 @@
                         <div class="quantity-selector">
                             <h5>Quantity:</h5>
                             <button class="quantity-btn minus">-</button>
-                            <input type="number" class="quantity-input" value="1" min="1" max="{{product.stockQuantity}}" readonly>
+                            <input type="number" class="quantity-input" value="1" min="1"
+                                max="{{product.stockQuantity}}" readonly>
                             <button class="quantity-btn plus">+</button>
                         </div>
-
                         <div class="action-buttons">
-                            <a href="/addcart/{{product._id}}">
+                            <form id="add-to-cart-form" action="/addcart/{{product._id}}" method="post">
+                                <input type="hidden" name="quantity" class="form-quantity-input" value="1">
+                                <input type="hidden" name="size" class="selected-size">
+                                <input type="hidden" name="color" class="selected-color">
                                 <button class="btn-add-to-cart">Add to Cart</button>
-                            </a>
+                            </form>
                             <button class="btn-buy-now">Buy Now</button>
                         </div>
                     </div>
@@ -405,61 +409,107 @@
     </section>
 
     {{>footer}}
-
+    <script src="/https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Thumbnail click functionality
-        document.querySelectorAll('.thumbnail').forEach(thumb => {
-            thumb.addEventListener('click', function () {
-                // Remove active class from all thumbnails
-                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-
-                // Add active class to clicked thumbnail
-                this.classList.add('active');
-
-                // Change main image
-                const mainImage = document.querySelector('.main-image');
-                mainImage.src = this.src;
+        // Run after DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // Thumbnail click functionality
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.addEventListener('click', function () {
+                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    const mainImage = document.querySelector('.main-image');
+                    mainImage.src = this.src;
+                });
             });
-        });
 
-        // Size selection
-        document.querySelectorAll('.size-option').forEach(size => {
-            size.addEventListener('click', function () {
-                // Remove selected class from all sizes
-                document.querySelectorAll('.size-option').forEach(s => s.classList.remove('selected'));
+            // Quantity selector
+            const minusBtn = document.querySelector('.quantity-btn.minus');
+            const plusBtn = document.querySelector('.quantity-btn.plus');
+            const quantityInput = document.querySelector('.quantity-input');
 
-                // Add selected class to clicked size
-                this.classList.add('selected');
-            });
-        });
+            if (minusBtn && plusBtn && quantityInput) {
+                minusBtn.addEventListener('click', function () {
+                    let value = parseInt(quantityInput.value) || 1;
+                    if (value > 1) {
+                        quantityInput.value = value - 1;
+                        console.log('Quantity decreased:', quantityInput.value);
+                    }
+                });
 
-        // Color selection
-        document.querySelectorAll('.color-option').forEach(color => {
-            color.addEventListener('click', function () {
-                // Remove selected class from all colors
-                document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
-
-                // Add selected class to clicked color
-                this.classList.add('selected');
-            });
-        });
-
-        // Quantity selector
-        const minusBtn = document.querySelector('.quantity-btn.minus');
-        const plusBtn = document.querySelector('.quantity-btn.plus');
-        const quantityInput = document.querySelector('.quantity-input');
-
-        minusBtn.addEventListener('click', function () {
-            let value = parseInt(quantityInput.value);
-            if (value > 1) {
-                quantityInput.value = value - 1;
+                plusBtn.addEventListener('click', function () {
+                    let value = parseInt(quantityInput.value) || 1;
+                    let max = parseInt(quantityInput.max) || 999;
+                    if (value < max) {
+                        quantityInput.value = value + 1;
+                        console.log('Quantity increased:', quantityInput.value);
+                    }
+                });
+            } else {
+                console.error('Quantity selector elements not found');
             }
-        });
 
-        plusBtn.addEventListener('click', function () {
-            let value = parseInt(quantityInput.value);
-            if (value < 50) { // Max stock is 50
-                quantityInput.value = value + 1;
+            // Size selection
+            const sizeOptions = document.querySelectorAll('.size-option');
+            sizeOptions.forEach(size => {
+                size.addEventListener('click', function () {
+                    sizeOptions.forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                    console.log('Size selected:', this.textContent);
+                });
+            });
+
+            // Color selection
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(color => {
+                color.addEventListener('click', function () {
+                    colorOptions.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    console.log('Color selected:', this.dataset.color || 'No data-color attribute');
+                });
+            });
+
+            // Form submission
+            const form = document.querySelector('#add-to-cart-form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    const quantityInput = document.querySelector('.quantity-input');
+                    const sizeOption = document.querySelector('.size-option.selected');
+                    const colorOption = document.querySelector('.color-option.selected');
+                    const formQuantity = this.querySelector('.form-quantity-input');
+                    const formSize = this.querySelector('.selected-size');
+                    const formColor = this.querySelector('.selected-color');
+
+                    formQuantity.value = quantityInput && quantityInput.value ? quantityInput.value : '1';
+                    formSize.value = sizeOption ? sizeOption.textContent.trim() : '';
+                    formColor.value = colorOption && colorOption.dataset.color ? colorOption.dataset.color : '';
+
+                    console.log('Form submitting with data:', {
+                        quantity: formQuantity.value,
+                        size: formSize.value,
+                        color: formColor.value
+                    });
+                });
+            } else {
+                console.error('Form not found');
+            }
+
+            // SweetAlert for success/error messages
+            let successMessage = "{{messages.success}}";
+            let errorMessage = "{{messages.error}}";
+            if (successMessage) {
+                Swal.fire({
+                    title: "Success",
+                    icon: "success",
+                    text: successMessage
+                });
+            }
+            if (errorMessage) {
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: errorMessage
+                });
             }
         });
     </script>

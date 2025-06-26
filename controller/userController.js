@@ -2,6 +2,7 @@ const Product = require("../model/productModel")
 const User = require("../model/authModel")
 const mongoose = require("mongoose")
 const Cart = require("../model/cartModel")
+const ObjectId = mongoose.Types.ObjectId
 // Get method for all Of my Pages
 const blogDetails = (req, res) => {
     res.render("blog-details")
@@ -9,72 +10,38 @@ const blogDetails = (req, res) => {
 const blogPage = (req, res) => {
     res.render("blog")
 }
-const cartPage = (req, res) => {
-    res.render("cart")
-}
-
-const addCart = async (req, res) => {
+const cartPage = async (req, res) => {
     try {
         if (!req.user) {
             return res.redirect("/login")
         }
         const userId = req.user.id
-        const productId = req.params.id
-        const { quantity = 1, size, color } = req.body
-        console.log(req.body)
-        if (!mongoose.Types.ObjectId.isValid(productId)) {
-            return res.render("single-product", { error: "Product not found" })
-        }
-        if (!size || !color) {
-            return res.render("single-product", { error: "Please select size and color" })
-        }
-        const qty = parseInt(quantity)
-        console.log(qty)
+        const currentUser = await User.findOne({ _id: userId })
 
-        if (isNaN(qty) || qty < 1) {
-            return res.render('single-product', { error: 'Invalid quantity' });
-        }
+        if (!currentUser) { return res.redirect("/login") }
 
-        const product = await Product.findById(productId)
-        console.log(product)
+        const cartItem = await Cart.find({ userId }).populate("productId")
 
-        if (!product) {
-            return res.render('single-product', { error: 'Product not found' });
-        }
-        if (product.stockQuantity < qty) {
-            return res.render('single-product', { error: 'Insufficient stock' });
-        }
-        if (!product.size || !product.color) {
-            return res.render("single-product", { error: "Please select size and color" })
-        }
+        const totalPrice = parseFloat(
+            cartItem.reduce((total, item) => {
+                return total + (item.quantity * (item.productId?.salePrice || 0))
+            }, 0).toFixed(2)
+        )
+        const firstImage = cartItem.map(item => ({
+            ...item.toObject(),
+            newImage: item.productId?.images?.[0] || "/image/cart.jpg"
+        }))
+        console.log(firstImage)
 
-        const currentUser = await User.findById(userId)
-        console.log(currentUser)
-        if (!currentUser) {
-            return res.redirect("/login")
-        }
-
-        const existingCartItem = await Cart.findOne({ userId, productId, size, color })
-        if (existingCartItem) {
-            existingCartItem.quantity += qty
-            if (existingCartItem.quantity > product.stockQuantity) {
-                return res.render('single-product', { error: 'Total quantity exceeds stock' });
-            }
-            await existingCartItem.save()
-        } else {
-           const cartMe= await Cart.create({
-                userId,
-                productId,
-                quantity: qty,
-                size, color
-            })
-            console.log(cartMe)
-            res.redirect("/cart?success=Added to cart successfully")
-        }
+        return res.render("cart", {
+            firstImage,
+            totalPrice,
+            currentUser
+        })
     } catch (error) {
-        console.error(error.message);
-        res.render("single-product", { error: "Something went wrong", errorMessage: error.message })
+
     }
+    res.render("cart")
 }
 const categoryPage = async (req, res) => {
     try {
@@ -182,6 +149,63 @@ const trackingPage = (req, res) => {
 }
 
 
+
+
+const addCart = async (req, res) => {
+    try {
+        if (!req.user) return res.redirect("/login")
+        const { id: productId } = req.params
+        const userId = req.user.id
+        const quantity = parseInt(req.body?.quantity) || 1
+        if (!ObjectId.isValid(productId)) {
+            return renderError("Invalid Product ID")
+        }
+        if (quantity < 1) {
+            return renderError("Invalid quantity")
+        }
+        const [currentUser, product] = await Promise.all([
+            User.findById(userId),
+            Product.findById(productId)
+        ])
+        if (!currentUser) return renderError("User not found")
+        if (!product) return renderError("Product not found")
+
+        if (product.stockQuantity < quantity) {
+            return renderError(`Only ${product.stockQuantity} item in stock`)
+        }
+
+        let cartItem = await Cart.findOne({ userId, productId })
+        if (cartItem) {
+            const newQuantity = cartItem.quantity + quantity
+            if (newQuantity > product.stockQuantity) {
+                return renderError(`Total quantity ${newQuantity} exceeds availabile stock`)
+            }
+            cartItem.quantity = newQuantity
+            await cartItem.save()
+        } else {
+            cartItem = await Cart.create({
+                userId, productId, quantity, size: req.body?.size, color: req.body?.color
+            })
+        }
+        res.render('single-product', {
+            product,
+            currentUser,
+            success: 'Added to cart successfully'
+        });
+
+    } catch (error) {
+        console.log(error.message)
+    }
+    // Error Helper Function
+    async function renderError(message, errorMessage = null) {
+        return res.render("single-product", {
+            product: Product || null,
+            currentUser: User || (req.user ? await User.findById(req.user.id) : null),
+            error: message,
+            errorMessage
+        })
+    }
+}
 
 
 module.exports = {
