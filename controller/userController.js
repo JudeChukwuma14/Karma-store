@@ -78,14 +78,51 @@ const categoryPage = async (req, res) => {
 
     }
 }
-const checkoutPage = (req, res) => {
-    res.render("checkout")
+const checkoutPage = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.redirect("/login")
+        }
+        const userId = req.user.id
+        const currentUser = await User.findById(userId)
+        if (!currentUser) {
+            return res.redirect("/login")
+        }
+
+        const userCart = await Cart.find({ userId }).populate("productId")
+        let totalAmount = 0
+        const cart = await userCart.map(item => {
+            const total = item.productId.salePrice * item.quantity
+            totalAmount += total
+            return {
+                _id: item._id,
+                productId: item.productId._id,
+                productName: item?.productId?.productName,
+                image: item?.productId?.images[0] || "",
+                price: item?.productId?.salePrice,
+                quantity: item.quantity,
+                stockQuantity: item?.productId?.stockQuantity,
+                total: Number(total.toFixed(2))
+            }
+
+        })
+
+
+        return res.render("checkout", {
+            currentUser,
+            cart,
+            totalAmount: Number(totalAmount.toFixed(2))
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 const confirmationPage = (req, res) => {
     res.render("confirmation")
 }
 
 const contactPage = (req, res) => {
+
     res.render("contact")
 }
 
@@ -266,14 +303,14 @@ const deleteCart = async (req, res) => {
             })
         }
         const cartItem = await Cart.findOneAndDelete({ _id: cartId, userId: req.user.id })
-        if(!cartItem){
-              return res.status(401).json({
+        if (!cartItem) {
+            return res.status(401).json({
                 success: false,
                 message: "Cart not found"
             })
         }
         return res.redirect("/cart")
-    }catch(error){
+    } catch (error) {
         console.log(error)
     }
 }

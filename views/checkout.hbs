@@ -7,9 +7,9 @@
 <body>
 
     <!-- Start Header Area -->
-		{{>navbar}}
+    {{>navbar}}
 
-	<!-- End Header Area -->
+    <!-- End Header Area -->
 
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
@@ -76,7 +76,8 @@
                                 <span class="placeholder" data-placeholder="Last name"></span>
                             </div>
                             <div class="col-md-12 form-group">
-                                <input type="text" class="form-control" id="company" name="company" placeholder="Company name">
+                                <input type="text" class="form-control" id="company" name="company"
+                                    placeholder="Company name">
                             </div>
                             <div class="col-md-6 form-group p_star">
                                 <input type="text" class="form-control" id="number" name="number">
@@ -127,7 +128,8 @@
                                     <input type="checkbox" id="f-option3" name="selector">
                                     <label for="f-option3">Ship to a different address?</label>
                                 </div>
-                                <textarea class="form-control" name="message" id="message" rows="1" placeholder="Order Notes"></textarea>
+                                <textarea class="form-control" name="message" id="message" rows="1"
+                                    placeholder="Order Notes"></textarea>
                             </div>
                         </form>
                     </div>
@@ -136,14 +138,15 @@
                             <h2>Your Order</h2>
                             <ul class="list">
                                 <li><a href="#">Product <span>Total</span></a></li>
-                                <li><a href="#">Fresh Blackberry <span class="middle">x 02</span> <span class="last">$720.00</span></a></li>
-                                <li><a href="#">Fresh Tomatoes <span class="middle">x 02</span> <span class="last">$720.00</span></a></li>
-                                <li><a href="#">Fresh Brocoli <span class="middle">x 02</span> <span class="last">$720.00</span></a></li>
+                                {{#each cart}}
+                                <li><a href="#">{{productName}} <span class="middle">x {{quantity}}</span> <span
+                                            class="last">₦{{total}}</span></a></li>
+                                {{/each}}
                             </ul>
                             <ul class="list list_2">
-                                <li><a href="#">Subtotal <span>$2160.00</span></a></li>
-                                <li><a href="#">Shipping <span>Flat rate: $50.00</span></a></li>
-                                <li><a href="#">Total <span>$2210.00</span></a></li>
+                                <li><a href="#">Subtotal <span>₦{{totalAmount}}</span></a></li>
+                                <li><a href="#">Shipping <span>Free</span></a></li>
+                                <li><a href="#">Total <span>₦{{totalAmount}}</span></a></li>
                             </ul>
                             <div class="payment_item">
                                 <div class="radion_btn">
@@ -177,9 +180,10 @@
         </div>
     </section>
     <!--================End Checkout Area =================-->
- {{>footer}}
+    {{>footer}}
 </body>
 
 
 <!-- Mirrored from themewagon.github.io/karma/checkout.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 14 Feb 2025 13:31:58 GMT -->
+
 </html>
