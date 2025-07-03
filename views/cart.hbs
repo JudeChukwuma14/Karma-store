@@ -2,11 +2,12 @@
 <html lang="zxx" class="no-js">
 
 {{>head}}
+
 <body>
 
     <!-- Start Header Area -->
-	{{>navbar}}
-	<!-- End Header Area -->
+    {{>navbar}}
+    <!-- End Header Area -->
 
     <!-- Start Banner Area -->
     <section class="banner-area organic-breadcrumb">
@@ -40,12 +41,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{#each firstImage}}
+                            {{#each cart}}
                             <tr>
                                 <td>
                                     <div class="media">
-                                        <div class="d-flex">
-                                            <img src="{{newImage}}" alt="{{productName}}">
+                                        <div class="d-flex" style=" height: 100px; width:150px; overflow:hidden">
+                                            <img src="{{image}}" alt="{{productName}}"
+                                                style="height: 100%; width:100%; object-fit:cover">
                                         </div>
                                         <div class="media-body">
                                             <p>{{productName}}</p>
@@ -53,33 +55,39 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <h5>${{salePrice}}</h5>
+                                    <h5>₦{{price}}</h5>
                                 </td>
                                 <td>
                                     <div class="product_count">
-                                        <input type="text" name="qty" id="sst" maxlength="12" value="1" title="Quantity:"
-                                            class="input-text qty">
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst )) result.value++;return false;"
-                                            class="increase items-count" type="button"><i class="lnr lnr-chevron-up"></i></button>
-                                        <button onclick="var result = document.getElementById('sst'); var sst = result.value; if( !isNaN( sst ) &amp;&amp; sst > 0 ) result.value--;return false;"
-                                            class="reduced items-count" type="button"><i class="lnr lnr-chevron-down"></i></button>
+                                        <input type="number" name="qty" id="qty-{{_id}}" maxlength="12"
+                                            value="{{quantity}}" title="Quantity:" class="input-text qty"
+                                            data-cart-id="{{_id}}" data-max="{{stockQuantity}}">
+
+                                        <button onclick="updateQuantity('{{_id}}', 1)" class="increase items-count"
+                                            type="button"><i class="lnr lnr-chevron-up"></i></button>
+
+                                        <button onclick="updateQuantity('{{_id}}', -1)" class="reduced items-count"
+                                            type="button"><i class="lnr lnr-chevron-down"></i></button>
                                     </div>
                                 </td>
                                 <td>
-                                    <h5>$720.00</h5>
+                                    <h5>₦{{total}}</h5>
+                                </td>
+                                <td>
+                                    <form action="/delete-cart" method="post">
+                                        <input type="hidden" name="cartId" value="{{_id}}">
+                                        <button type="submit">Remove</button>
+                                    </form>
                                 </td>
                             </tr>
-                          {{/each}}
+                            {{/each}}
+
                             <tr class="bottom_button">
                                 <td>
-                                    <a class="gray_btn" href="#">Update Cart</a>
+                                    <a class="update-cart-btn" href="#" onclick="updateCart()">Update Cart</a>
                                 </td>
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
+                                <td></td>
+                                <td></td>
                                 <td>
                                     <div class="cupon_text d-flex align-items-center">
                                         <input type="text" placeholder="Coupon Code">
@@ -89,67 +97,23 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
+                                <td></td>
+                                <td></td>
                                 <td>
                                     <h5>Subtotal</h5>
                                 </td>
                                 <td>
-                                    <h5>${{totalPrice}}</h5>
-                                </td>
-                            </tr>
-                            <tr class="shipping_area">
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-                                    <h5>Shipping</h5>
-                                </td>
-                                <td>
-                                    <div class="shipping_box">
-                                        <ul class="list">
-                                            <li><a href="#">Flat Rate: $5.00</a></li>
-                                            <li><a href="#">Free Shipping</a></li>
-                                            <li><a href="#">Flat Rate: $10.00</a></li>
-                                            <li class="active"><a href="#">Local Delivery: $2.00</a></li>
-                                        </ul>
-                                        <h6>Calculate Shipping <i class="fa fa-caret-down" aria-hidden="true"></i></h6>
-                                        <select class="shipping_select">
-                                            <option value="1">Bangladesh</option>
-                                            <option value="2">India</option>
-                                            <option value="4">Pakistan</option>
-                                        </select>
-                                        <select class="shipping_select">
-                                            <option value="1">Select a State</option>
-                                            <option value="2">Select a State</option>
-                                            <option value="4">Select a State</option>
-                                        </select>
-                                        <input type="text" placeholder="Postcode/Zipcode">
-                                        <a class="gray_btn" href="#">Update Details</a>
-                                    </div>
+                                    <h5>₦{{totalAmount}}</h5>
                                 </td>
                             </tr>
                             <tr class="out_button_area">
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                                 <td>
                                     <div class="checkout_btn_inner d-flex align-items-center">
-                                        <a class="gray_btn" href="#">Continue Shopping</a>
-                                        <a class="primary-btn" href="#">Proceed to checkout</a>
+                                        <a class="gray_btn" href="/category">Continue Shopping</a>
+                                        <a class="primary-btn" href="/checkout">Proceed to checkout</a>
                                     </div>
                                 </td>
                             </tr>
@@ -162,8 +126,86 @@
     <!--================End Cart Area =================-->
 
     {{>footer}}
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const updateQuantity = async (cartId, change) => {
+            const input = document.getElementById(`qty-${cartId}`);
+            const max = parseInt(input.dataset.max);
+            let quantity = parseInt(input.value) || 1;
+            quantity += change;
+
+            // Validate input
+            if (isNaN(quantity)) {
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: "Invalid quantity",
+                });
+                return;
+            }
+            if (quantity < 1) {
+                quantity = 1;
+            }
+
+            if (quantity > max) {
+                quantity = max;
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: `Only ${max} item(s) in stock`,
+                });
+                return;
+            }
+
+            input.value = quantity;
+
+            try {
+                const response = await fetch("/updatecart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ cartId, quantity }),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire({
+                        title: "Success",
+                        icon: "success",
+                        text: result.message,
+                    }).then(() => location.reload()); // Refresh to update totals
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        icon: "error",
+                        text: result.message,
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: "Failed to update cart",
+                });
+            }
+        };
+
+        const updateAllCart = async () => {
+            const inputs = document.querySelectorAll(".qty");
+            for (const input of inputs) {
+                const cartId = input.dataset.cartId;
+                const quantity = parseInt(input.value);
+                if (!isNaN(quantity)) {
+                    await updateQuantity(cartId, 0); // Trigger update without changing quantity
+                }
+            }
+        };
+    </script>
+
 </body>
 
 
 <!-- Mirrored from themewagon.github.io/karma/cart.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 14 Feb 2025 13:31:58 GMT -->
+
 </html>

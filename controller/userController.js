@@ -21,27 +21,29 @@ const cartPage = async (req, res) => {
         if (!currentUser) { return res.redirect("/login") }
 
         const cartItem = await Cart.find({ userId }).populate("productId")
+        let totalAmount = 0
+        const cart = cartItem.map(item => {
+            const total = item.productId.salePrice * item.quantity
+            totalAmount += total
+            return {
+                _id: item._id,
+                productId: item.productId._id,
+                productName: item?.productId?.productName,
+                image: item?.productId?.images[0] || "",
+                price: item?.productId?.salePrice,
+                quantity: item.quantity,
+                stockQuantity: item?.productId?.stockQuantity,
+                total: Number(total.toFixed(2))
 
-        const totalPrice = parseFloat(
-            cartItem.reduce((total, item) => {
-                return total + (item.quantity * (item.productId?.salePrice || 0))
-            }, 0).toFixed(2)
-        )
-        const firstImage = cartItem.map(item => ({
-            ...item.toObject(),
-            newImage: item.productId?.images?.[0] || "/image/cart.jpg"
-        }))
-        console.log(firstImage)
+            }
+        })
 
         return res.render("cart", {
-            firstImage,
-            totalPrice,
-            currentUser
+            cart, totalAmount: Number(totalAmount.toFixed(2)), currentUser
         })
     } catch (error) {
-
+        console.log(error.message)
     }
-    res.render("cart")
 }
 const categoryPage = async (req, res) => {
     try {
@@ -207,8 +209,76 @@ const addCart = async (req, res) => {
     }
 }
 
+const updateCart = async (req, res) => {
+    try {
+        const { cartId, quantity } = req.body
+        if (!req.user) {
+            return res.redirect("/login")
+        }
+        if (!ObjectId.isValid(cartId)) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid CartId"
+            })
+        }
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid quantity"
+            })
+        }
+
+        const cartItem = await Cart.findOne({ _id: cartId, userId: req.user.id }).populate("productId")
+        if (!cartItem || !cartItem.productId) {
+            return res.status(401).json({
+                success: false,
+                message: "Cart not found"
+            })
+        }
+
+        if (quantity > cartItem.productId.stockQuantity) {
+            return res.status(401).json({
+                success: false,
+                message: `Only ${cartItem.productId.stockQuantity} item in stock`
+            })
+        }
+        cartItem.quantity = quantity
+        await cartItem.save()
+        return res.status(200).json({
+            success: true,
+            message: `Cart updated`, quantity: cartItem.quantity
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+
+const deleteCart = async (req, res) => {
+    try {
+        const { cartId } = req.body
+        if (!req.user) {
+            return res.redirect("/login")
+        }
+        if (!ObjectId.isValid(cartId)) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid CartId"
+            })
+        }
+        const cartItem = await Cart.findOneAndDelete({ _id: cartId, userId: req.user.id })
+        if(!cartItem){
+              return res.status(401).json({
+                success: false,
+                message: "Cart not found"
+            })
+        }
+        return res.redirect("/cart")
+    }catch(error){
+        console.log(error)
+    }
+}
 
 module.exports = {
-    blogDetails, blogPage, cartPage, categoryPage, checkoutPage, confirmationPage, contactPage, elementPage, indexOne, indexTwo, loginPage, registerPage, signleBlog, singleProduct, trackingPage, addCart
+    blogDetails, blogPage, cartPage, categoryPage, checkoutPage, confirmationPage, contactPage, elementPage, indexOne, indexTwo, loginPage, registerPage, signleBlog, singleProduct, trackingPage, addCart, updateCart, deleteCart
 }
 

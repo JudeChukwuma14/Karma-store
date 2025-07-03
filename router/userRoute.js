@@ -1,6 +1,6 @@
 
 const express = require('express')
-const { blogDetails, blogPage, cartPage, categoryPage, confirmationPage, contactPage, elementPage, indexOne, loginPage, indexTwo, registerPage, signleBlog, singleProduct, trackingPage, checkoutPage, addCart } = require('../controller/userController')
+const { blogDetails, blogPage, cartPage, categoryPage, confirmationPage, contactPage, elementPage, indexOne, loginPage, indexTwo, registerPage, signleBlog, singleProduct, trackingPage, checkoutPage, addCart, updateCart, deleteCart } = require('../controller/userController')
 const verifyToken = require('../middleware/verifyToken')
 const router = express.Router()
 
@@ -20,6 +20,8 @@ router.get("/single-blog", signleBlog)
 router.get("/single-product/:id", singleProduct)
 router.get("/tracking", trackingPage)
 router.post("/addcart/:id", verifyToken, addCart)
+router.post("/updatecart", verifyToken, updateCart)
+router.post("/delete-cart", verifyToken, deleteCart)
 
 
 
