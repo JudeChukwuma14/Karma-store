@@ -37,7 +37,7 @@ const payment = async (req, res) => {
             userId: currentUser._id,
             currency: "NGN",
             amount: totalAmount * 100,
-            callback_url: "http://localhost:3000/callback"
+            callback_url: "https://karma-store-3bxg.onrender.com/callback"
         }
         const paymentResponse = await initializePayment(transactionData)
         const { authorization_url } = paymentResponse.data
