@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{>head}}
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+
+        /* Page Title */
+        .page-title {
+            margin: 40px 0 30px;
+            text-align: center;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Form Container */
+        .form-container {
+
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 50px;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="email"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #ff6b6b;
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group .hint {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Form Row (for side-by-side fields) */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Checkbox and Radio Groups */
+        .checkbox-group, .radio-group {
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group label, .radio-group label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .checkbox-options, .radio-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-option, .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-option input, .radio-option input {
+            margin-right: 8px;
+        }
+
+        /* Size Selection */
+        .size-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .size-option {
+            position: relative;
+        }
+
+        .size-option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .size-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .size-option input[type="checkbox"]:checked + label {
+            background-color: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+
+        /* Color Selection */
+        .color-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            position: relative;
+        }
+
+        .color-option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .color-option label {
+            display: block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .color-option input[type="checkbox"]:checked + label {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #ff6b6b;
+        }
+
+        /* Image Upload */
+        .image-upload {
+            margin-top: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #ff6b6b;
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-area p {
+            color: #888;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .uploaded-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .uploaded-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .uploaded-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .uploaded-image .remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #ff6b6b;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff5252;
+        }
+
+        .btn-secondary {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e5e5;
+        }
+
+    
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            nav ul {
+                margin-top: 20px;
+            }
+
+            nav ul li {
+                margin: 0 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+{{>navbar}}
+<section class="banner-area organic-breadcrumb">
+		<div class="container">
+			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+				<div class="col-first">
+					<h1>Post New Product</h1>
+					<nav class="d-flex align-items-center">
+						<a href="/index">Home<span class="lnr lnr-arrow-right"></span></a>
+						<a href="/category">Product</a>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</section>
+    <!-- Main Content -->
+    <main class="container">
+        <form class="form-container" action="/post-product", method="post" enctype="multipart/form-data">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
+                <div class="form-group">
+                    <label for="product-name">Product Name*</label>
+                    <input type="text" id="product-name" name="productName" placeholder="e.g. Nike Air Max 270" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="brand">Brand*</label>
+                        <select id="brand" name="brand" required>
+                            <option value="">Select Brand</option>
+                            <option value="nike">Nike</option>
+                            <option value="adidas">Adidas</option>
+                            <option value="puma">Puma</option>
+                            <option value="reebok">Reebok</option>
+                            <option value="new-balance">New Balance</option>
+                            <option value="converse">Converse</option>
+                            <option value="vans">Vans</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category*</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="running">Running</option>
+                            <option value="basketball">Basketball</option>
+                            <option value="casual">Casual</option>
+                            <option value="training">Training & Gym</option>
+                            <option value="skateboarding">Skateboarding</option>
+                            <option value="football">Football</option>
+                            <option value="tennis">Tennis</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Product Description*</label>
+                    <textarea id="description" name="description" placeholder="Provide a detailed description of the product..." required></textarea>
+                    <p class="hint">Include details about materials, features, and benefits</p>
+                </div>
+            </div>
+
+            <!-- Pricing & Inventory Section -->
+            <div class="form-section">
+                <h2 class="section-title">Pricing & Inventory</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Regular Price ($)*</label>
+                        <input type="number" id="price" name="regularPrice" min="0" step="0.01" placeholder="e.g. 149.99" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sale-price">Sale Price ($)</label>
+                        <input type="number" id="sale-price" name="salePrice" min="0" step="0.01" placeholder="e.g. 129.99">
+                        <p class="hint">Leave empty if not on sale</p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sku">SKU (Stock Keeping Unit)*</label>
+                        <input type="text" id="sku" name="sku" placeholder="e.g. NKE-AM270-BLK-10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock Quantity*</label>
+                        <input type="number" id="stock" name="stockQuantity" min="0" placeholder="e.g. 50" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attributes Section -->
+            <div class="form-section">
+                <h2 class="section-title">Product Attributes</h2>
+                
+                <!-- Sizes -->
+                <div class="form-group">
+                    <label>Available Sizes*</label>
+                    <div class="size-options">
+                        <div class="size-option">
+                            <input type="checkbox" id="size-6" name="size[]" value="6">
+                            <label for="size-6">6</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="size-7" name="size[]" value="7">
+                            <label for="size-7">7</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="size-8" name="size[]" value="8">
+                            <label for="size-8">8</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="size-9" name="size[]" value="9">
+                            <label for="size-9">9</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="size-10" name="size[]" value="10">
+                            <label for="size-10">10</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="size-11" name="size[]" value="11">
+                            <label for="size-11">11</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="size-12" name="size[]" value="12">
+                            <label for="size-12">12</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Colors -->
+                <div class="form-group">
+                    <label>Available Colors*</label>
+                    <div class="color-options">
+                        <div class="color-option">
+                            <input type="checkbox" id="color-black" name="color[]" value="black">
+                            <label for="color-black" style="background-color: #000;"></label>
+                        </div>
+                        <div class="color-option">
+                            <input type="checkbox" id="color-white" name="color[]" value="white">
+                            <label for="color-white" style="background-color: #fff; border: 1px solid #ddd;"></label>
+                        </div>
+                        <div class="color-option">
+                            <input type="checkbox" id="color-red" name="color[]" value="red">
+                            <label for="color-red" style="background-color: #ff0000;"></label>
+                        </div>
+                        <div class="color-option">
+                            <input type="checkbox" id="color-blue" name="color[]" value="blue">
+                            <label for="color-blue" style="background-color: #0000ff;"></label>
+                        </div>
+                        <div class="color-option">
+                            <input type="checkbox" id="color-green" name="color[]" value="green">
+                            <label for="color-green" style="background-color: #008000;"></label>
+                        </div>
+                        <div class="color-option">
+                            <input type="checkbox" id="color-yellow" name="color[]" value="yellow">
+                            <label for="color-yellow" style="background-color: #ffff00;"></label>
+                        </div>
+                        <div class="color-option">
+                            <input type="checkbox" id="color-gray" name="color[]" value="gray">
+                            <label for="color-gray" style="background-color: #808080;"></label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gender">Gender*</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="men">Men</option>
+                            <option value="women">Women</option>
+                            <option value="unisex">Unisex</option>
+                            <option value="kids">Kids</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images Section -->
+            <div class="form-section">
+                <h2 class="section-title">Product Images</h2>
+                <p>Upload high-quality images of your product from different angles</p>
+                
+                <div class="image-upload">
+                    <label for="product-images" class="upload-area">
+                        <i>+</i>
+                        <p>Click to upload or drag and drop</p>
+                        <p class="hint">PNG, JPG or WEBP (max. 5MB each)</p>
+                        <input type="file" id="product-images" name="images" multiple accept="image/*">
+                    </label>
+                    
+                    <div class="uploaded-images">
+                        <div class="uploaded-image">
+                            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Shoe preview">
+                            <span class="remove">×</span>
+                        </div>
+                        <div class="uploaded-image">
+                            <img src="https://images.unsplash.com/photo-1607522370275-f14206abe5d3" alt="Shoe preview">
+                            <span class="remove">×</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publish Product</button>
+            </div>
+        </form>
+    </main>
+    {{>footer}}
+</body>
+</html>

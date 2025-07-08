@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {{>head}}
+    <style>
+        /* Product Details Styles */
+        .product-details {
+            padding: 60px 0;
+            background-color: #f8f9fa;
+        }
+
+        .product-gallery {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 500px;
+            object-fit: contain;
+            background: #f9f9f9;
+            cursor: zoom-in;
+        }
+
+        .thumbnail-container {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .thumbnail:hover,
+        .thumbnail.active {
+            border-color: #ff6b6b;
+        }
+
+        .product-info {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .product-brand {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .price-container {
+            margin: 20px 0;
+        }
+
+        .current-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .original-price {
+            font-size: 18px;
+            text-decoration: line-through;
+            color: #999;
+            margin-left: 10px;
+        }
+
+        .discount-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .product-meta {
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .meta-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 100px;
+        }
+
+        .meta-value {
+            color: #333;
+        }
+
+        .availability {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .size-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .size-option {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .size-option:hover,
+        .size-option.selected {
+            background-color: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+        }
+
+        .color-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .color-option:hover,
+        .color-option.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #ff6b6b;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            background: #f1f1f1;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-input {
+            width: 60px;
+            height: 40px;
+            text-align: center;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-add-to-cart,
+        .btn-buy-now {
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-add-to-cart {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+        }
+
+        .btn-add-to-cart:hover {
+            background-color: #ff5252;
+        }
+
+        .btn-buy-now {
+            background-color: transparent;
+            color: #ff6b6b;
+            border: 2px solid #ff6b6b;
+        }
+
+        .btn-buy-now:hover {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .product-description {
+            margin-top: 50px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .description-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .description-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background: #ff6b6b;
+        }
+
+        .description-content {
+            line-height: 1.8;
+            color: #555;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .main-image {
+                height: 350px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-add-to-cart,
+            .btn-buy-now {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {{>navbar}}
+    <!-- Start Banner Area -->
+    <section class="banner-area organic-breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                <div class="col-first">
+                    <h1>Product Details</h1>
+                    <nav class="d-flex align-items-center">
+                        <a href="/index">Home<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="/category">Shop now</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Banner Area -->
+    <!-- Product Details Section -->
+    <section class="product-details">
+        <div class="container">
+            <div class="row">
+                <!-- Product Gallery -->
+                <div class="col-lg-6">
+                    <div class="product-gallery">
+                        <img src="{{product.images.[0]}}" alt="{{product.productName}}" class="main-image img-fluid">
+                        <div class="thumbnail-container">
+                            {{#each product.images}}
+                            <img src="{{this}}" alt="Thumbnail" class="thumbnail {{#if @first}}active{{/if}}">
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="col-lg-6">
+                    <div class="product-info">
+                        <h1 class="product-title">{{product.productName}}</h1>
+                        <span class="product-brand">by {{product.brand}}</span>
+
+                        <div class="price-container">
+                            <span class="current-price">₦{{product.salePrice}}</span>
+                            <span class="original-price">₦{{product.regularPrice}}</span>
+                            <span class="discount-badge">{{discount}}% OFF</span>
+                        </div>
+
+                        <div class="product-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">SKU:</span>
+                                <span class="meta-value">{{product.sku}}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Availability:</span>
+                                <span class="meta-value availability">
+                                    {{#if product.stockQuantity}}
+                                    In Stock ({{product.stockQuantity}} units)
+                                    {{else}}
+                                    Out of Stock
+                                    {{/if}}
+                                </span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Category:</span>
+                                <span class="meta-value">{{product.category}}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Gender:</span>
+                                <span class="meta-value">{{product.gender}}</span>
+                            </div>
+                        </div>
+
+                        {{#if product.size.length}}
+                        <h5>Select Size:</h5>
+                        <div class="size-options">
+                            {{#each product.size}}
+                            <div class="size-option {{#if @first}}selected{{/if}}">{{this}}</div>
+                            {{/each}}
+                        </div>
+                        {{/if}}
+
+                        {{#if product.color.length}}
+                        <h5>Select Color:</h5>
+                        <div class="color-options">
+                            {{#each product.color}}
+                            <div class="color-option {{#if @first}}selected{{/if}}" style="background-color: {{this}}" data-color="{{this}}">
+                            </div>
+                            {{/each}}
+                        </div>
+                        {{/if}}
+
+                        <div class="quantity-selector">
+                            <h5>Quantity:</h5>
+                            <button class="quantity-btn minus">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1"
+                                max="{{product.stockQuantity}}" readonly>
+                            <button class="quantity-btn plus">+</button>
+                        </div>
+                        <div class="action-buttons">
+                            <form id="add-to-cart-form" action="/addcart/{{product._id}}" method="post">
+                                <input type="hidden" name="quantity" class="form-quantity-input" value="1">
+                                <input type="hidden" name="size" class="selected-size">
+                                <input type="hidden" name="color" class="selected-color">
+                                <button class="btn-add-to-cart">Add to Cart</button>
+                            </form>
+                            <button class="btn-buy-now">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Description -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="product-description">
+                        <h2 class="description-title">Product Description</h2>
+                        <div class="description-content">
+                            <p>{{product.description}}</p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{>footer}}
+    <script src="/https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Run after DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            // Thumbnail click functionality
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.addEventListener('click', function () {
+                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    const mainImage = document.querySelector('.main-image');
+                    mainImage.src = this.src;
+                });
+            });
+
+            // Quantity selector
+            const minusBtn = document.querySelector('.quantity-btn.minus');
+            const plusBtn = document.querySelector('.quantity-btn.plus');
+            const quantityInput = document.querySelector('.quantity-input');
+
+            if (minusBtn && plusBtn && quantityInput) {
+                minusBtn.addEventListener('click', function () {
+                    let value = parseInt(quantityInput.value) || 1;
+                    if (value > 1) {
+                        quantityInput.value = value - 1;
+                        console.log('Quantity decreased:', quantityInput.value);
+                    }
+                });
+
+                plusBtn.addEventListener('click', function () {
+                    let value = parseInt(quantityInput.value) || 1;
+                    let max = parseInt(quantityInput.max) || 999;
+                    if (value < max) {
+                        quantityInput.value = value + 1;
+                        console.log('Quantity increased:', quantityInput.value);
+                    }
+                });
+            } else {
+                console.error('Quantity selector elements not found');
+            }
+
+            // Size selection
+            const sizeOptions = document.querySelectorAll('.size-option');
+            sizeOptions.forEach(size => {
+                size.addEventListener('click', function () {
+                    sizeOptions.forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                    console.log('Size selected:', this.textContent);
+                });
+            });
+
+            // Color selection
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(color => {
+                color.addEventListener('click', function () {
+                    colorOptions.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    console.log('Color selected:', this.dataset.color || 'No data-color attribute');
+                });
+            });
+
+            // Form submission
+            const form = document.querySelector('#add-to-cart-form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    const quantityInput = document.querySelector('.quantity-input');
+                    const sizeOption = document.querySelector('.size-option.selected');
+                    const colorOption = document.querySelector('.color-option.selected');
+                    const formQuantity = this.querySelector('.form-quantity-input');
+                    const formSize = this.querySelector('.selected-size');
+                    const formColor = this.querySelector('.selected-color');
+
+                    formQuantity.value = quantityInput && quantityInput.value ? quantityInput.value : '1';
+                    formSize.value = sizeOption ? sizeOption.textContent.trim() : '';
+                    formColor.value = colorOption && colorOption.dataset.color ? colorOption.dataset.color : '';
+
+                    console.log('Form submitting with data:', {
+                        quantity: formQuantity.value,
+                        size: formSize.value,
+                        color: formColor.value
+                    });
+                });
+            } else {
+                console.error('Form not found');
+            }
+
+            // SweetAlert for success/error messages
+            let successMessage = "{{messages.success}}";
+            let errorMessage = "{{messages.error}}";
+            if (successMessage) {
+                Swal.fire({
+                    title: "Success",
+                    icon: "success",
+                    text: successMessage
+                });
+            }
+            if (errorMessage) {
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: errorMessage
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

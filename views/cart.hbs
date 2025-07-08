@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zxx" class="no-js">
+
+{{>head}}
+
+<body>
+
+    <!-- Start Header Area -->
+    {{>navbar}}
+    <!-- End Header Area -->
+
+    <!-- Start Banner Area -->
+    <section class="banner-area organic-breadcrumb">
+        <div class="container">
+            <div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+                <div class="col-first">
+                    <h1>Shopping Cart</h1>
+                    <nav class="d-flex align-items-center">
+                        <a href="index-2.html">Home<span class="lnr lnr-arrow-right"></span></a>
+                        <a href="category.html">Cart</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End Banner Area -->
+
+    <!--================Cart Area =================-->
+    <section class="cart_area">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each cart}}
+                            <tr>
+                                <td>
+                                    <div class="media">
+                                        <div class="d-flex" style=" height: 100px; width:150px; overflow:hidden">
+                                            <img src="{{image}}" alt="{{productName}}"
+                                                style="height: 100%; width:100%; object-fit:cover">
+                                        </div>
+                                        <div class="media-body">
+                                            <p>{{productName}}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <h5>₦{{price}}</h5>
+                                </td>
+                                <td>
+                                    <div class="product_count">
+                                        <input type="number" name="qty" id="qty-{{_id}}" maxlength="12"
+                                            value="{{quantity}}" title="Quantity:" class="input-text qty"
+                                            data-cart-id="{{_id}}" data-max="{{stockQuantity}}">
+
+                                        <button onclick="updateQuantity('{{_id}}', 1)" class="increase items-count"
+                                            type="button"><i class="lnr lnr-chevron-up"></i></button>
+
+                                        <button onclick="updateQuantity('{{_id}}', -1)" class="reduced items-count"
+                                            type="button"><i class="lnr lnr-chevron-down"></i></button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <h5>₦{{total}}</h5>
+                                </td>
+                                <td>
+                                    <form action="/delete-cart" method="post">
+                                        <input type="hidden" name="cartId" value="{{_id}}">
+                                        <button type="submit">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {{/each}}
+
+                            <tr class="bottom_button">
+                                <td>
+                                    <a class="update-cart-btn" href="#" onclick="updateCart()">Update Cart</a>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <div class="cupon_text d-flex align-items-center">
+                                        <input type="text" placeholder="Coupon Code">
+                                        <a class="primary-btn" href="#">Apply</a>
+                                        <a class="gray_btn" href="#">Close Coupon</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <h5>Subtotal</h5>
+                                </td>
+                                <td>
+                                    <h5>₦{{totalAmount}}</h5>
+                                </td>
+                            </tr>
+                            <tr class="out_button_area">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <div class="checkout_btn_inner d-flex align-items-center">
+                                        <a class="gray_btn" href="/category">Continue Shopping</a>
+                                        <a class="primary-btn" href="/checkout">Proceed to checkout</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--================End Cart Area =================-->
+
+    {{>footer}}
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const updateQuantity = async (cartId, change) => {
+            const input = document.getElementById(`qty-${cartId}`);
+            const max = parseInt(input.dataset.max);
+            let quantity = parseInt(input.value) || 1;
+            quantity += change;
+
+            // Validate input
+            if (isNaN(quantity)) {
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: "Invalid quantity",
+                });
+                return;
+            }
+            if (quantity < 1) {
+                quantity = 1;
+            }
+
+            if (quantity > max) {
+                quantity = max;
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: `Only ${max} item(s) in stock`,
+                });
+                return;
+            }
+
+            input.value = quantity;
+
+            try {
+                const response = await fetch("/updatecart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ cartId, quantity }),
+                });
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire({
+                        title: "Success",
+                        icon: "success",
+                        text: result.message,
+                    }).then(() => location.reload()); // Refresh to update totals
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        icon: "error",
+                        text: result.message,
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    text: "Failed to update cart",
+                });
+            }
+        };
+
+        const updateAllCart = async () => {
+            const inputs = document.querySelectorAll(".qty");
+            for (const input of inputs) {
+                const cartId = input.dataset.cartId;
+                const quantity = parseInt(input.value);
+                if (!isNaN(quantity)) {
+                    await updateQuantity(cartId, 0); // Trigger update without changing quantity
+                }
+            }
+        };
+    </script>
+
+</body>
+
+
+<!-- Mirrored from themewagon.github.io/karma/cart.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 14 Feb 2025 13:31:58 GMT -->
+
+</html>
